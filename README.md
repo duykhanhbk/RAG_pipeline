@@ -6,9 +6,9 @@ RAG with advanced technique
 - **Azure Document Intelligence**: https://azure.microsoft.com/en-us/products/ai-services/ai-document-intelligence
 An AI service that applies advanced machine learning to extract text, key-value pairs, tables, and structures from documents automatically and accurately
 - **Customize Multi-modal parser (./preprocessing/multimodal_parser)**: 
-1. Audio files: transcribed use Whisper (use in-house or OpenAI API)
-2. image files: use gpt-4o
-3. Video Files: Both the transcripts and various frame slices are processed in the same manner, with each being chunked and embedded using 4. the default pipeline settings.
+    - Audio files: transcribed use Whisper (use in-house or OpenAI API)
+    - image files: use gpt-4o
+    - Video Files: Both the transcripts and various frame slices are processed in the same manner, with each being chunked and embedded
 
 
 ### Vector DB: Qdrant + Hybrid search
@@ -23,7 +23,7 @@ An AI service that applies advanced machine learning to extract text, key-value 
 - It is production-ready. Companies such as Disney, Mozilla, and Microsoft already use it.
 - It is one of the most popular vector DBs out there.
 
-- **Why do we still need keyword search?**
+**Why do we still need keyword search?**
 A keyword-based search was the obvious choice for search engines in the past. It struggled with some common issues, but since we didn’t have any alternatives, we had to overcome them with additional preprocessing of the documents and queries. Vector search turned out to be a breakthrough, as it has some clear advantages in the following scenarios:
 
 - 🌍 Multi-lingual & multi-modal search
@@ -70,7 +70,7 @@ Task, Score, model size and memory usage, embedding dimensions, max_tokens,..
 - Hybrid & Filtered vector search
 - Query Rewriting
 
-1. Query Expansion:
+**1. Query Expansion:**
 
 **The problem**
 - In a typical retrieval step, you query your vector DB using a single point.
@@ -82,7 +82,7 @@ Task, Score, model size and memory usage, embedding dimensions, max_tokens,..
 - These queries should contain multiple perspectives of the initial query.
 - Thus, when embedded, they hit different areas of your embedding space that are still relevant to our initial question.
 
-2. Self Query:
+**2. Self Query:**
 
 **The problem:**
 - When embedding your query, you cannot guarantee that all the aspects required by your use case are present in the embedding vector.
@@ -93,9 +93,17 @@ Task, Score, model size and memory usage, embedding dimensions, max_tokens,..
 - What if you could extract the tags within the query and use them along the embedded query? That is what self-query is all about!
 - You use an LLM to extract various metadata fields that are critical for your business use case (e.g., tags, author ID, number of comments, likes, shares, etc.)
 
-3. Hybrid & Filtered vector search
+**3. Hybrid & Filtered vector search:**
 
-4. Query rewriting
+**The problem**
+- Embeddings are great for capturing the general semantics of a specific chunk. But they are not that great for querying specific keywords.
+- For example, if we want to retrieve article chunks about LLMs from our Qdrant vector DB, embeddings would be enough. However, if we want to query for a specific LLM type (e.g., LLama 3), using only similarities between embeddings won’t be enough.
+- Thus, embeddings are not great for finding exact phrase matching for specific terms.
+
+**The solution:**
+Combine the vector search technique with one (or more) complementary search strategy, which works great for finding exact words.
+
+**4. Query rewriting:**
 
 - Sub-question decomposition: Break a complex question into sub-questions. Unlike pure chain of thought, you can break a question down into a parallelizable sub-questions that you can try answering all at once.
 - HyDE: rewrite the question to hallucinate an answer that better aligns with the embedding semantics.
@@ -108,7 +116,6 @@ Task, Score, model size and memory usage, embedding dimensions, max_tokens,..
 **Embedding finetuning && Data synthetic geneeration**: https://www.philschmid.de/fine-tune-embedding-model-for-rag
 
 Step by step (Modification by Kevin):
-
 - Create & Prepare embedding dataset: Data synthetic
 - Bonus: Create hard negative samples
 - Create baseline and evaluate pretrained model
