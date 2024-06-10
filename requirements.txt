@@ -1,0 +1,22 @@
+pydantic
+pydantic-settings
+qdrant-client 
+unstructured
+langchain
+sentence-transformers
+# instructorembedding
+numpy
+langchain-openai
+pymongo
+structlog
+comet-ml
+comet-llm
+# qwak-sdk
+pandas
+datasets
+peft
+bitsandbytes
+qwak-inference
+ragas
+python-docx
+openpyxl
