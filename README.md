@@ -47,13 +47,13 @@ There is not a single definition of hybrid search. Actually, if we use more than
 
 First, download the latest Qdrant image from Dockerhub:
 
-`docker pull qdrant/qdrant`
+```docker pull qdrant/qdrant```
 
 Then, run the service:
 
-`docker run -p 6333:6333 -p 6334:6334 \
+```docker run -p 6333:6333 -p 6334:6334 \
     -v $(pwd)/qdrant_storage:/qdrant/storage:z \
-    qdrant/qdrant`
+    qdrant/qdrant```
 
 Under the default configuration all data will be stored in the ./qdrant_storage directory. This will also be the only directory that both the Container and the host machine can both see.
 
@@ -63,13 +63,14 @@ Qdrant is now accessible:
 - Web UI: localhost:6333/dashboard
 - GRPC API: localhost:6334
 
+ref: https://qdrant.tech/documentation/quick-start/
+
 ### Guide to Choosing the Best Embedding Model for Your Application
 
 ref: https://weaviate.io/blog/how-to-choose-an-embedding-model
 
 - **Step 1**: Identify your use case: Modality (e.g., text only or multimodal), subject domain (e.g., coding, law, medical, multilingual, etc.), and deployment mode? 
-- **Step 2**: Choose a baseline model: Based on MTEB leaderboard is a good starting point 
-Task, Score, model size and memory usage, embedding dimensions, max_tokens,..
+- **Step 2**: Choose a baseline model: Based on MTEB leaderboard is a good starting point (Task, Score, model size and memory usage, embedding dimensions, max_tokens,..)
 - **Step 3**: Evaluate model on your use-case: Prepare evaluation dataset with pair (question, gold_context) Metric: recision, recall, MRR, MAP, and NDCG
 - **Step 4**: Iterate step 1 → step 3 to find best embedding candidate and finetuning if needed
 
@@ -160,19 +161,73 @@ Step by step:
 
 Option 1: Launching with lmdeploy CLI
 
-`lmdeploy serve api_server meta-llama/Meta-Llama-3-8B-Instruct --server-port 23333`
+```lmdeploy serve api_server meta-llama/Meta-Llama-3-8B-Instruct --server-port 23333```
 
 Option 2: Deploying with docker
 
 With LMDeploy official docker image, you can run OpenAI compatible server as follows:
 
-`docker run --runtime nvidia --gpus all \
+```docker run --runtime nvidia --gpus all \
     -v ~/.cache/huggingface:/root/.cache/huggingface \
     --env "HUGGING_FACE_HUB_TOKEN=<secret>" \
     -p 23333:23333 \
     --ipc=host \
     openmmlab/lmdeploy:latest \
-    lmdeploy serve api_server meta-llama/Meta-Llama-3-8B-Instruct`
+    lmdeploy serve api_server meta-llama/Meta-Llama-3-8B-Instruct```
+
+ref: https://lmdeploy.readthedocs.io/en/latest/serving/api_server.html
+
+**How to Serving LLM in-house with vllm**
+
+ref: https://docs.vllm.ai/en/stable/
+
+vLLM offers official docker image for deployment. The image can be used to run OpenAI compatible server. The image is available on Docker Hub as vllm/vllm-openai.
+
+```docker run --runtime nvidia --gpus all \
+    -v ~/.cache/huggingface:/root/.cache/huggingface \
+    --env "HUGGING_FACE_HUB_TOKEN=<secret>" \
+    -p 8000:8000 \
+    --ipc=host \
+    vllm/vllm-openai:latest \
+    --model mistralai/Mistral-7B-v0.1```
+
+**How to serving Embedding model and CrossEncoder Reranker?**
+
+Option 1: Infinity
+
+Infinity is a high-throughput, low-latency REST API for serving vector embeddings, supporting all sentence-transformer models and frameworks. Infinity is developed under MIT License. Infinity powers inference behind Gradient.ai and other Embedding API providers.
+
+Why Infinity?
+
+Infinity provides the following features:
+
+- Deploy any model from MTEB: deploy the model you know from SentenceTransformers
+- Fast inference backends: The inference server is built on top of torch, optimum(onnx/tensorrt) and CTranslate2, using FlashAttention to get the most out of CUDA, ROCM, CPU or MPS device.
+- Dynamic batching: New embedding requests are queued while GPU is busy with the previous ones. New requests are squeezed intro your device as soon as ready. Similar max throughput on GPU as text-embeddings-inference.
+- Correct and tested implementation: Unit and end-to-end tested. Embeddings via infinity are identical to SentenceTransformers (up to numerical precision). Lets API users create embeddings till infinity and beyond.
+- Easy to use: The API is built on top of FastAPI, Swagger makes it fully documented. API are aligned to OpenAI's Embedding specs. See below on how to get started.
+
+**Deploy with Docker**
+
+```port=7997
+model1=michaelfeil/bge-small-en-v1.5
+model2=mixedbread-ai/mxbai-rerank-xsmall-v1
+volume=$PWD/data
+
+docker run -it --gpus all \
+ -v $volume:/app/.cache \
+ -p $port:$port \
+ michaelf34/infinity:latest \
+ v2 \
+ --model-id $model1 \
+ --model-id $model2 \
+ --port $port```
+
+The cache path at inside the docker container is set by the environment variable HF_HOME
+
+ref:
+- https://github.com/michaelfeil/infinity
+- https://michaelfeil.eu/infinity/0.0.41/
 
 ### Evaluation pipeline
 
