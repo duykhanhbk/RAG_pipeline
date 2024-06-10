@@ -51,9 +51,11 @@ First, download the latest Qdrant image from Dockerhub:
 
 Then, run the service:
 
-    ```docker run -p 6333:6333 -p 6334:6334 \
+    ```sh
+        docker run -p 6333:6333 -p 6334:6334 \
         -v $(pwd)/qdrant_storage:/qdrant/storage:z \
-        qdrant/qdrant```
+        qdrant/qdrant
+    ```
 
 Under the default configuration all data will be stored in the ./qdrant_storage directory. This will also be the only directory that both the Container and the host machine can both see.
 
@@ -167,13 +169,15 @@ Option 2: Deploying with docker
 
 With LMDeploy official docker image, you can run OpenAI compatible server as follows:
 
-    ```docker run --runtime nvidia --gpus all \
+    ```sh
+        docker run --runtime nvidia --gpus all \
         -v ~/.cache/huggingface:/root/.cache/huggingface \
         --env "HUGGING_FACE_HUB_TOKEN=<secret>" \
         -p 23333:23333 \
         --ipc=host \
         openmmlab/lmdeploy:latest \
-        lmdeploy serve api_server meta-llama/Meta-Llama-3-8B-Instruct```
+        lmdeploy serve api_server meta-llama/Meta-Llama-3-8B-Instruct
+    ```
 
 ref: https://lmdeploy.readthedocs.io/en/latest/serving/api_server.html
 
@@ -183,13 +187,15 @@ ref: https://docs.vllm.ai/en/stable/
 
 vLLM offers official docker image for deployment. The image can be used to run OpenAI compatible server. The image is available on Docker Hub as vllm/vllm-openai.
 
-    ```docker run --runtime nvidia --gpus all \
+    ```sh
+        docker run --runtime nvidia --gpus all \
         -v ~/.cache/huggingface:/root/.cache/huggingface \
         --env "HUGGING_FACE_HUB_TOKEN=<secret>" \
         -p 8000:8000 \
         --ipc=host \
         vllm/vllm-openai:latest \
-        --model mistralai/Mistral-7B-v0.1```
+        --model mistralai/Mistral-7B-v0.1
+    ```
 
 **How to serving Embedding model and CrossEncoder Reranker?**
 
@@ -209,7 +215,8 @@ Infinity provides the following features:
 
 **Deploy with Docker**
 
-    ```port=7997
+    ```sh
+    port=7997
     model1=michaelfeil/bge-small-en-v1.5
     model2=mixedbread-ai/mxbai-rerank-xsmall-v1
     volume=$PWD/data
@@ -221,7 +228,8 @@ Infinity provides the following features:
     v2 \
     --model-id $model1 \
     --model-id $model2 \
-    --port $port```
+    --port $port
+    ```
 
 The cache path at inside the docker container is set by the environment variable HF_HOME
 
