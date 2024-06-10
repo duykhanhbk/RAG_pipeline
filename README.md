@@ -51,8 +51,8 @@ First, download the latest Qdrant image from Dockerhub:
 
 Then, run the service:
 
-```docker run -p 6333:6333 -p 6334:6334 \
-    -v $(pwd)/qdrant_storage:/qdrant/storage:z \
+```docker run -p 6333:6333 -p 6334:6334
+    -v $(pwd)/qdrant_storage:/qdrant/storage:z 
     qdrant/qdrant```
 
 Under the default configuration all data will be stored in the ./qdrant_storage directory. This will also be the only directory that both the Container and the host machine can both see.
@@ -228,6 +228,8 @@ The cache path at inside the docker container is set by the environment variable
 ref:
 - https://github.com/michaelfeil/infinity
 - https://michaelfeil.eu/infinity/0.0.41/
+
+Option 2: vllm embedding server
 
 ### Evaluation pipeline
 
