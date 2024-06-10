@@ -20,3 +20,5 @@ qwak-inference
 ragas
 python-docx
 openpyxl
+streamlit
+openai

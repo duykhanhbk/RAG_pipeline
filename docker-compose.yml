@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  streamlit_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    depends_on:
+      - qdrant
+      - llmdeploy-service
+    environment:
+      - LLMDEPLOY_API_KEY=<your_llmdeploy_api_key>
+      - LLMDEPLOY_BASE_URL=http://llmdeploy:23333/v1
+
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_storage:/qdrant/storage:z
+
+  llmdeploy-service:
+    image: openmmlab/lmdeploy:latest
+    runtime: nvidia
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=<secret>
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    ports:
+      - "23333:23333"
+    command: lmdeploy serve api_server meta-llama/Meta-Llama-3-8B-Instruct
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  qdrant_storage:

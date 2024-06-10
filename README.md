@@ -43,12 +43,25 @@ There is not a single definition of hybrid search. Actually, if we use more than
 - Vector search with keyword-based search. This one is covered in this article.
 - A mix of dense and sparse vectors. That strategy will be covered in the upcoming article.
 
-**Note:** Cross-encoder takes a pair of texts and predicts the similarity of them. Unlike embedding models, cross-encoders do not compress text into vector, but uses interactions between individual tokens of both texts. In general, they are more powerful than both BM25 and vector search, but they are also way slower. That makes it feasible to use cross-encoders only for re-ranking of some preselected candidates.
+**How to deploy Qdrant in local:**
 
-**Reranking**
-- Cross encoder model: Huggingface
-- LLM Reranker: GPT4, GPT-4o, etc
-- Cohere reranker API
+First, download the latest Qdrant image from Dockerhub:
+
+`docker pull qdrant/qdrant`
+
+Then, run the service:
+
+`docker run -p 6333:6333 -p 6334:6334 \
+    -v $(pwd)/qdrant_storage:/qdrant/storage:z \
+    qdrant/qdrant`
+
+Under the default configuration all data will be stored in the ./qdrant_storage directory. This will also be the only directory that both the Container and the host machine can both see.
+
+Qdrant is now accessible:
+
+- REST API: localhost:6333
+- Web UI: localhost:6333/dashboard
+- GRPC API: localhost:6334
 
 ### Guide to Choosing the Best Embedding Model for Your Application
 
@@ -103,6 +116,13 @@ Task, Score, model size and memory usage, embedding dimensions, max_tokens,..
 **The solution:**
 Combine the vector search technique with one (or more) complementary search strategy, which works great for finding exact words.
 
+**Note:** Cross-encoder takes a pair of texts and predicts the similarity of them. Unlike embedding models, cross-encoders do not compress text into vector, but uses interactions between individual tokens of both texts. In general, they are more powerful than both BM25 and vector search, but they are also way slower. That makes it feasible to use cross-encoders only for re-ranking of some preselected candidates.
+
+**Reranking**
+- Cross encoder model: Huggingface
+- LLM Reranker: GPT4, GPT-4o, etc
+- Cohere reranker API
+
 **4. Query rewriting:**
 
 - Sub-question decomposition: Break a complex question into sub-questions. Unlike pure chain of thought, you can break a question down into a parallelizable sub-questions that you can try answering all at once.
@@ -136,6 +156,24 @@ Step by step:
 - vllm
 - TensorRT-LLM
 
+**How to SERVING LLMDeploy WITH OPENAI COMPATIBLE SERVER**
+
+Option 1: Launching with lmdeploy CLI
+
+`lmdeploy serve api_server meta-llama/Meta-Llama-3-8B-Instruct --server-port 23333`
+
+Option 2: Deploying with docker
+
+With LMDeploy official docker image, you can run OpenAI compatible server as follows:
+
+`docker run --runtime nvidia --gpus all \
+    -v ~/.cache/huggingface:/root/.cache/huggingface \
+    --env "HUGGING_FACE_HUB_TOKEN=<secret>" \
+    -p 23333:23333 \
+    --ipc=host \
+    openmmlab/lmdeploy:latest \
+    lmdeploy serve api_server meta-llama/Meta-Llama-3-8B-Instruct`
+
 ### Evaluation pipeline
 
 - LLM (GPT4, GPT-4o, Gemini) + Prompt Evaluation
@@ -154,7 +192,18 @@ Step by step:
 - Use a bigger LLM (e.g., GPT4, GPT-4o) to evaluate the results of our LLM (API or in-house) and fine-tuned LLM (opensource, example: LLama3, Mistral, Qwen, Mixtral, Deepseek)
 
 
-### How to run: TO DO
+### How to run: TO DO (UPDATE !!)
 
+- You need setup Qdrant service and stored all data you need
 - Deploy with Docker and docker-compose
-- Simple UI for testing 
+- Simple UI for testing: streamlit
+
+1. **Build and run the services**:
+   In the directory containing your `Dockerfile` and `docker-compose.yml`, run:
+
+   ```sh
+   docker-compose up --build
+   ```
+
+2. **Access the Streamlit app**:
+   Open your web browser and navigate to `http://localhost:8501` to access the Streamlit interface.
