@@ -47,12 +47,12 @@ There is not a single definition of hybrid search. Actually, if we use more than
 
 First, download the latest Qdrant image from Dockerhub:
 
-```docker pull qdrant/qdrant```
+`docker pull qdrant/qdrant`
 
 Then, run the service:
 
-```docker run -p 6333:6333 -p 6334:6334
-    -v $(pwd)/qdrant_storage:/qdrant/storage:z 
+```docker run -p 6333:6333 -p 6334:6334 \
+    -v $(pwd)/qdrant_storage:/qdrant/storage:z \
     qdrant/qdrant```
 
 Under the default configuration all data will be stored in the ./qdrant_storage directory. This will also be the only directory that both the Container and the host machine can both see.
